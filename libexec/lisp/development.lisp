@@ -13,6 +13,8 @@
 
 (defpackage #:org.melusina.github-actions/development
   (:use #:common-lisp)
+  (:local-nicknames
+   (#:atelier #:org.melusina.atelier))
   (:export
    #:lint
    #+quicklisp
@@ -33,7 +35,10 @@
     (:project-filename . "org.melusina.github-actions")
     (:project-name . "GitHub Actions Support")
     (:project-description . "System for the development of GitHub Actions with Common Lisp")
-    (:project-long-description . "This system provides tools that support the development of GitHub Actions with Common Lisp.")
+    (:project-long-description .
+     (concatenate 'string
+      "This system provides tools that support the development "
+      "of GitHub Actions with Common Lisp."))
     (:homepage . "https://github.com/melusina-org/cl-github-actions")
     (:license . :MIT)))
 

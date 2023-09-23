@@ -13,7 +13,10 @@
 
 (in-package #:org.melusina.github-actions/testsuite)
 
-(define-testcase run-all-tests ()
+(define-testcase unit-tests ()
   (assert-t t))
+
+(define-testcase all-tests ()
+  (unit-tests))
 
 ;;;; End of file `entrypoint.lisp'

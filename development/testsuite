@@ -33,7 +33,7 @@ testsuite_lisp()
 testsuite_run()
 {
     if [ $# -eq 0 ]; then
-	set -- 'run-all-tests'
+	set -- 'all-tests'
     fi
     testsuite_lisp\
         --eval "(unless (ql:where-is-system :${testsuitesystem})
