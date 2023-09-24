@@ -13,6 +13,8 @@
 
 (defpackage #:org.melusina.github-actions/testsuite
   (:use #:common-lisp)
+  (:local-nicknames
+   (#:core #:org.melusina.github-actions))
   (:import-from #:org.melusina.confidence
    #:define-testcase
    #:define-assertion

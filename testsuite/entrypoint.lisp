@@ -13,8 +13,50 @@
 
 (in-package #:org.melusina.github-actions/testsuite)
 
+(defun line (string)
+  (concatenate 'string string '(#\Newline)))
+
 (define-testcase unit-tests ()
-  (assert-t t))
+  (assert-string=
+   (line "::debug::Set the Octocat variable")
+   (with-output-to-string (*standard-output*)
+     (core:set-debug "Set the ~A variable" "Octocat")))
+
+  (assert-string=
+   (line "::notice file=app.js,line=1,col=5,endColumn=7::Missing semicolon")
+   (with-output-to-string (*standard-output*)
+     (core:set-notice "Missing semicolon" :file "app.js" :start-line 1 :start-column 5 :end-column 7)))
+
+  (assert-string=
+   (line "::warning file=app.js,line=1,col=5,endColumn=7::Missing semicolon")
+   (with-output-to-string (*standard-output*)
+     (core:set-warning "Missing semicolon" :file "app.js" :start-line 1 :start-column 5 :end-column 7)))
+
+  (assert-string=
+   (line "::error file=app.js,line=1,col=5,endColumn=7::Missing semicolon")
+   (with-output-to-string (*standard-output*)
+     (core:set-error "Missing semicolon" :file "app.js" :start-line 1 :start-column 5 :end-column 7)))
+
+  (assert-string=
+   (line "::add-mask::Mona the Octocat")
+   (with-output-to-string (*standard-output*)
+     (core:set-secret "Mona the Octocat")))
+  
+  (assert-string=
+   (line "SELECTED_COLOR=green")
+   (with-output-to-string (*standard-output*)
+     (core:set-output :key "SELECTED_COLOR" :value "green")))
+  
+  (assert-string=
+   (line "/root/.local/bin")
+   (with-output-to-string (*standard-output*)
+     (core:add-path #p"/root/.local/bin")))
+
+  (assert-string=
+   (line "### Hello world! :rocket:")
+   (with-output-to-string (*standard-output*)
+     (core:with-output-to-summary (*standard-output*)
+       (format t "### Hello world! :rocket:~%")))))
 
 (define-testcase all-tests ()
   (unit-tests))

@@ -14,6 +14,14 @@
 (defpackage #:org.melusina.github-actions
   (:use #:common-lisp)
   (:export
+   #:add-path
+   #:set-secret
+   #:set-output
+   #:set-debug
+   #:set-notice
+   #:set-warning
+   #:set-error
+   #:with-output-to-summary
   ))
 
 (in-package #:org.melusina.github-actions)
