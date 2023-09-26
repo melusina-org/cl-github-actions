@@ -27,10 +27,10 @@ This function is to be used as interactive slot for restarts."
   "Set output KEY to VALUE."
   (unless value
     (restart-case (error "The value for ~A is not defined." key)
-      (use-value (value)
+      (use-value (new-value)
 	:report "Specify a value to  use instead of the missing value definition."
-	:interactive prompt-value
-	value)))
+	:interactive (lambda () (prompt-value "~&Specify a value to  use instead of the missing value definition.~%"))
+	(setf value new-value))))
   (flet ((write-output (stream)
 	   (format stream "~&~A=~A~&" key value)))
     (if (uiop:getenv "GITHUB_OUTPUT")
