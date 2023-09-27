@@ -20,7 +20,7 @@
   ((:module "src"
     :components ((:file "package")
                  (:file "utilities")
-		 (:file "entrypoint")))))
+		 (:file "entry-point")))))
 
 (asdf:defsystem #:org.melusina.github-actions/testsuite
   :description "System for the development of GitHub Actions with Common Lisp"
@@ -33,7 +33,7 @@
   ((:module "testsuite"
     :components ((:file "package")
 		 (:file "utilities")
-		 (:file "entrypoint")))))
+		 (:file "entry-point")))))
 
 (asdf:defsystem #:org.melusina.github-actions/development
   :description "Development tools for GitHub Actions Support"

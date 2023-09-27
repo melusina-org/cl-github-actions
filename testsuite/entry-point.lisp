@@ -1,4 +1,4 @@
-;;;; entrypoint.lisp — Entrypoint for GitHub Actions Support
+;;;; entry-point.lisp — Entry point for GitHub Actions Support
 
 ;;;; GitHub Actions Support (https://github.com/melusina-org/cl-github-actions)
 ;;;; This file is part of GitHub Actions Support.
@@ -61,4 +61,4 @@
 (define-testcase all-tests ()
   (unit-tests))
 
-;;;; End of file `entrypoint.lisp'
+;;;; End of file `entry-point.lisp'
