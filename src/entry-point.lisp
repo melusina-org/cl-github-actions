@@ -13,6 +13,30 @@
 
 (in-package #:org.melusina.github-actions)
 
+(defparameter *github-output*
+  (uiop:getenv "GITHUB_OUTPUT")
+  "The file to write step output parmameters to.")
+
+(defparameter *github-path*
+  (uiop:getenv "GITHUB_PATH")
+  "The file to write path addtions to.")
+  
+(defparameter *github-step-summary*
+  (uiop:getenv "GITHUB_STEP_SUMMARY")
+  "The file to write step summary to.")
+  
+(defmacro with-open-file-or-standard-output ((var filespec) &body body)
+  (alexandria:once-only (filespec)
+    `(flet ((write-output (,var)
+	      ,@body))
+       (if ,filespec
+	   (with-open-file (output ,filespec
+				   :direction :output
+				   :if-exists :append
+				   :if-does-not-exist :create)
+	     (write-output output))
+	   (write-output *standard-output*)))))
+
 (defun prompt-value (control-string &rest format-arguments)
   "Print message with format and read value.
 This function is to be used as interactive slot for restarts."
@@ -31,15 +55,8 @@ This function is to be used as interactive slot for restarts."
 	:report "Specify a value to  use instead of the missing value definition."
 	:interactive (lambda () (prompt-value "~&Specify a value to  use instead of the missing value definition.~%"))
 	(setf value new-value))))
-  (flet ((write-output (stream)
-	   (format stream "~&~A=~A~&" key value)))
-    (if (uiop:getenv "GITHUB_OUTPUT")
-	(with-open-file (output (uiop:getenv "GITHUB_OUTPUT")
-				:direction :output
-				:if-exists :append
-				:if-does-not-exist :create)
-	  (write-output output))
-	(write-output *standard-output*))))
+  (with-open-file-or-standard-output (stream *github-output*)
+    (format stream "~&~A=~A~&" key value)))
 
 (defun add-path (pathname)
   "Prepends PATHNAME to the system PATH variable.
@@ -52,15 +69,8 @@ variable."
 	     pathname)
 	    (pathname
 	     (namestring pathname)))))
-    (flet ((write-path (stream)
-	     (format stream "~&~A~&" pathname)))
-      (if (uiop:getenv "GITHUB_PATH")
-	  (with-open-file (output (uiop:getenv "GITHUB_PATH")
-				  :direction :output
-				  :if-exists :append
-				  :if-does-not-exist :create)
-	    (write-path output))
-	  (write-path *standard-output*)))))
+    (with-open-file-or-standard-output (stream *github-path*)
+      (format stream "~&~A~&" pathname))))
 
 (defun set-debug (control-string &rest format-arguments)
   "Set a debug message."
@@ -123,13 +133,7 @@ variable."
   (format t "::~A~&" message))
 
 (defmacro with-output-to-summary ((var) &body body)
-  `(if (uiop:getenv "GITHUB_PATH")
-       (with-open-file (,var (uiop:getenv "GITHUB_PATH")
-			     :direction :output
-			     :if-exists :append
-			     :if-does-not-exist :create)
-	 ,@body)
-       (let ((,var *standard-output*))
-	 ,@body)))
+  `(with-open-file-or-standard-output (,var *github-step-summary*)
+	,@body))
 
 ;;;; End of file `entry-point.lisp'
