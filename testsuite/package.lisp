@@ -15,6 +15,10 @@
   (:use #:common-lisp)
   (:local-nicknames
    (#:core #:org.melusina.github-actions))
+  (:export
+   #:component-tests/set-output
+   #:component-tests/set-debug
+   #:component-tests/set-notice)
   (:import-from #:org.melusina.confidence
    #:define-testcase
    #:define-assertion

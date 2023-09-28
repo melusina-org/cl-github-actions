@@ -6,3 +6,67 @@ jobs:
   continuous-integration:
     name: 'Lisp Continuous Integration'
     uses: melusina-org/reusable/.github/workflows/lisp-continuous-integration.yaml@v1
+    needs: component-tests
+
+  component-tests:
+    strategy:
+      matrix:
+        implementation: ['abcl', 'sbcl']
+        os: ['ubuntu-latest', 'macos-11', 'macos-12', 'macos-13']
+    runs-on: '${{ matrix.os }}'
+    name: 'Component Tests'
+    steps:
+      - uses: actions/checkout@v3
+      - name: 'Install MacPorts'
+        if: runner.os == 'macOS'
+        uses: melusina-org/setup-macports@v1
+      - uses: melusina-org/setup-common-lisp@v1
+        with:
+          implementation: '${{ matrix.implementation }}'
+      - uses: melusina-org/setup-quicklisp@v1
+        with:
+          implementation: '${{ matrix.implementation }}'
+      - name: 'Run a program that sets debug'
+        id: set-debug
+        continue-on-error: true
+        uses: melusina-org/run-common-lisp-program@v1
+        with:
+          implementation: '${{ matrix.implementation }}'
+          system: 'org.melusina.github-actions/testsuite'
+          entrypoint: 'component-tests/set-debug'
+      - name: 'Run a program that sets a notice'
+        id: set-notice
+        continue-on-error: true
+        uses: melusina-org/run-common-lisp-program@v1
+        with:
+          implementation: '${{ matrix.implementation }}'
+          system: 'org.melusina.github-actions/testsuite'
+          entrypoint: 'component-tests/set-notice'
+      - name: 'Run a script that sets output'
+        id: set-output-script
+        continue-on-error: true
+        shell: sh
+        run: |
+          echo SELECTED_COLOR=green >> "${GITHUB_OUTPUT}"
+          printf 'Begin Dump GitHub Output\n'
+          cat "${GITHUB_OUTPUT}"
+          printf 'End Dump GitHub Output\n'
+          hexdump -C "${GITHUB_OUTPUT}"
+      - name: 'Ensure that output is set by script'
+        shell: sh
+        run: |
+          test '${{ steps.set-output-script.outputs.SELECTED_COLOR }}' = 'green'
+      - name: 'Run a program that sets output'
+        id: set-output-program
+        continue-on-error: true
+        uses: melusina-org/run-common-lisp-program@v1
+        with:
+          implementation: '${{ matrix.implementation }}'
+          system: 'org.melusina.github-actions/testsuite'
+          entrypoint: 'component-tests/set-output'
+      - name: 'Ensure that output is set by program'
+        continue-on-error: true
+        shell: sh
+        run: |
+          test '${{ steps.set-output-program.outputs.SELECTED_COLOR }}' = 'green'
+ 

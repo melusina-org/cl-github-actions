@@ -64,4 +64,20 @@
 (define-testcase all-tests ()
   (unit-tests))
 
+(defun component-tests/set-output ()
+  (core:set-output :key "SELECTED_COLOR" :value "green")
+  (core:auscultate))
+
+(defun component-tests/set-debug ()
+  (core:set-debug "This demonstrates the SET-DEBUG feature.")
+  (core:auscultate))
+
+(defun component-tests/set-notice ()
+  (core:set-notice "This demonstrates the SET-NOTICE feature."
+		   :title "Demonstration"
+		   :file "testsuite/entry-point.lisp"
+		   :start-line 75
+		   :end-line 81)
+  (core:auscultate))
+
 ;;;; End of file `entry-point.lisp'

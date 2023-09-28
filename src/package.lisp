@@ -14,6 +14,7 @@
 (defpackage #:org.melusina.github-actions
   (:use #:common-lisp)
   (:export
+   #:is-debug-p
    #:add-path
    #:set-secret
    #:set-output
@@ -22,6 +23,7 @@
    #:set-warning
    #:set-error
    #:with-output-to-summary
+   #:auscultate
   ))
 
 (in-package #:org.melusina.github-actions)
