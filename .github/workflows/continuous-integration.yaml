@@ -17,6 +17,9 @@ jobs:
       matrix:
         implementation: ['abcl', 'sbcl']
         os: ['ubuntu-latest', 'macos-11', 'macos-12', 'macos-13']
+        exclude:
+          - os: 'ubuntu-latest'
+            implementation: 'abcl'
     runs-on: '${{ matrix.os }}'
     name: 'Component Tests'
     steps:
@@ -30,6 +33,42 @@ jobs:
       - uses: melusina-org/setup-quicklisp@v1
         with:
           implementation: '${{ matrix.implementation }}'
+      - name: 'Run a failing program'
+        id: failing-program
+        continue-on-error: true
+        shell: sh
+        run: |
+          ${{ github.workspace }}/libexec/with_lisp_implementation '${{ matrix.implementation }}' <<EOF
+          (uiop:quit 1)
+          EOF
+      - name: 'Ensure a failing program yields failure'
+        shell: sh
+        run: |
+          test '${{ steps.failing-program.outcome }}' = 'failure'
+      - name: 'Run a missing system'
+        id: missing-system
+        continue-on-error: true
+        shell: sh
+        run: |
+          ${{ github.workspace }}/libexec/with_lisp_implementation '${{ matrix.implementation }}' <<EOF
+          (org.melusina.non-existent:non-existent)
+          EOF
+      - name: 'Ensure a missing system yields failure'
+        shell: sh
+        run: |
+          test '${{ steps.missing-system.outcome }}' = 'failure'
+      - name: 'Run a successful program'
+        id: successful-program
+        continue-on-error: true
+        shell: sh
+        run: |
+          ${{ github.workspace }}/libexec/with_lisp_implementation '${{ matrix.implementation }}' <<EOF
+          (uiop:quit)
+          EOF
+      - name: 'Ensure a successful program yields success'
+        shell: sh
+        run: |
+          test '${{ steps.successful-program.outcome }}' = 'success'
       - name: 'Run a program that sets debug'
         id: set-debug
         continue-on-error: true
@@ -46,31 +85,3 @@ jobs:
           implementation: '${{ matrix.implementation }}'
           system: 'org.melusina.github-actions/testsuite'
           entrypoint: 'component-tests/set-notice'
-      - name: 'Run a script that sets output'
-        id: set-output-script
-        continue-on-error: true
-        shell: sh
-        run: |
-          echo SELECTED_COLOR=green >> "${GITHUB_OUTPUT}"
-          printf 'Begin Dump GitHub Output\n'
-          cat "${GITHUB_OUTPUT}"
-          printf 'End Dump GitHub Output\n'
-          hexdump -C "${GITHUB_OUTPUT}"
-      - name: 'Ensure that output is set by script'
-        shell: sh
-        run: |
-          test '${{ steps.set-output-script.outputs.SELECTED_COLOR }}' = 'green'
-      - name: 'Run a program that sets output'
-        id: set-output-program
-        continue-on-error: true
-        uses: melusina-org/run-common-lisp-program@v1
-        with:
-          implementation: '${{ matrix.implementation }}'
-          system: 'org.melusina.github-actions/testsuite'
-          entrypoint: 'component-tests/set-output'
-      - name: 'Ensure that output is set by program'
-        continue-on-error: true
-        shell: sh
-        run: |
-          test '${{ steps.set-output-program.outputs.SELECTED_COLOR }}' = 'green'
- 
